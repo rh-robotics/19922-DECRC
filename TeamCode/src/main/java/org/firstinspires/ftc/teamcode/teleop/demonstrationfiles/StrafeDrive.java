@@ -1,11 +1,10 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleop.demonstrationfiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.teamcode.subsystems.HWC;
 
 /**
  * TeleOp OpMode for simply driving with strafing wheels
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.HWC;
 @TeleOp(name = "Basic Strafe Drive", group = "Iterative OpMode")
 public class StrafeDrive extends OpMode {
     private final ElapsedTime time = new ElapsedTime();
-    HWC robot; // Declare the object for HWC, will allow us to access all the motors declared there!
+    DcMotorEx leftFront, rightFront, rightRear, leftRear;
 
     // init() Runs ONCE after the driver hits initialize
     @Override
@@ -22,8 +21,15 @@ public class StrafeDrive extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Do all init stuff
-        // TODO: ADD INITS THAT YOU NEED
-        robot = new HWC(hardwareMap, telemetry);
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        rightFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        rightRear.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -71,9 +77,9 @@ public class StrafeDrive extends OpMode {
         }
 
         // Set power to values calculated above
-        robot.leftFront.setPower(leftFPower);
-        robot.leftRear.setPower(leftBPower);
-        robot.rightFront.setPower(rightFPower);
-        robot.rightRear.setPower(rightBPower);
+        leftFront.setPower(leftFPower);
+        leftRear.setPower(leftBPower);
+        rightFront.setPower(rightFPower);
+        rightRear.setPower(rightBPower);
     }
 }

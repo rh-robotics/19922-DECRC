@@ -1,13 +1,12 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleop.demonstrationfiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.teamcode.subsystems.HWC;
 
 /**
  * TeleOp OpMode for club fair, including strafe drive and launcher controls.
@@ -15,8 +14,10 @@ import org.firstinspires.ftc.teamcode.subsystems.HWC;
 @TeleOp(name = "Club Fair OpMode", group = "Events")
 public class ClubFairOpMode extends OpMode {
     private final ElapsedTime time = new ElapsedTime();
-    HWC robot; // Declare the object for HWC, will allow us to access all the motors declared there!
-    Servo ballPusher;
+    public DcMotorEx leftFront, rightFront, leftRear, rightRear;
+    public DcMotorEx topLaunch, bottomLaunch;
+    public Servo ballPusher;
+
     double pusherPosition = 0.5;
     double powerVal = 0.55;
 
@@ -27,8 +28,23 @@ public class ClubFairOpMode extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Do all init stuff
-        robot = new HWC(hardwareMap, telemetry);
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+
+        topLaunch = hardwareMap.get(DcMotorEx.class, "topLaunch");
+        bottomLaunch = hardwareMap.get(DcMotorEx.class, "bottomLaunch");
+
         ballPusher = hardwareMap.get(Servo.class, "ballPusher");
+
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        rightFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        rightRear.setDirection(DcMotorEx.Direction.REVERSE);
+
+        topLaunch.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomLaunch.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -71,10 +87,10 @@ public class ClubFairOpMode extends OpMode {
         }
 
         // Set power to values calculated above
-        robot.leftFront.setPower(leftFPower *0.75);
-        robot.leftRear.setPower(leftBPower *0.75);
-        robot.rightFront.setPower(rightFPower *0.75);
-        robot.rightRear.setPower(rightBPower *0.75);
+        leftFront.setPower(leftFPower *0.75);
+        leftRear.setPower(leftBPower *0.75);
+        rightFront.setPower(rightFPower *0.75);
+        rightRear.setPower(rightBPower *0.75);
 
         if (gamepad1.dpad_up) {
             powerVal += 0.001;
@@ -86,18 +102,18 @@ public class ClubFairOpMode extends OpMode {
 
         // Set launcher wheel powers. Currently consolidated onto one OpMode, later may be separated.
         if (gamepad1.right_trigger > 0.2) {
-            robot.leftLaunch.setPower(powerVal);
-            robot.rightLaunch.setPower(powerVal);
+            topLaunch.setPower(powerVal);
+            bottomLaunch.setPower(powerVal);
 
             telemetry.addData("Left/Right Launchers", powerVal);
         } else if (gamepad1.right_bumper) {
-            robot.leftLaunch.setPower(-0.35);
-            robot.rightLaunch.setPower(-0.35);
+            topLaunch.setPower(-0.35);
+            bottomLaunch.setPower(-0.35);
 
             telemetry.addData("Left/Right Launchers", -0.35);
         } else {
-            robot.leftLaunch.setPower(0);
-            robot.rightLaunch.setPower(0);
+            topLaunch.setPower(0);
+            bottomLaunch.setPower(0);
 
             telemetry.addData("Left/Right Launchers", 0);
         }
@@ -107,7 +123,7 @@ public class ClubFairOpMode extends OpMode {
         } else {
             pusherPosition = 0.5;
         }
-        telemetry.addData("Ball pusher", ballPusher.getPosition());
+        telemetry.addData("Ball pusher", pusherPosition);
         ballPusher.setPosition(pusherPosition);
     }
 }
