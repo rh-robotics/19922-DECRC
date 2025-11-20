@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.paths.DrivePath;
 
 public class DriveTrain extends SubsystemBase {
-    SwerveModule[] modules;
-    DcMotorEx leftFront, rightFront, rightRear, leftRear;
+    private SwerveModule[] modules;
+    private DcMotorEx leftFront, rightFront, rightRear, leftRear;
+    private double t; // ticker, "time", paths use this as their parametric variable to keep track of where they are on the path
+    private boolean inPathTolerance = true;
 
     public DriveTrain(HardwareMap hardwareMap, boolean isSwerve) {
         // allows handling of swerve and strafe drive
@@ -35,13 +37,55 @@ public class DriveTrain extends SubsystemBase {
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
     }
 
+    public void runStrafe(double driveY, double turnX, double strafeX) {
+        double leftFPower, rightFPower, leftBPower, rightBPower;
+        double drive = driveY * 0.8;
+        double turn = turnX * 0.6;
+        double strafe = strafeX * 0.8;
+
+        // Calculate drive power
+        if (drive != 0 || turn != 0) {
+            leftFPower = Range.clip(drive + turn, -1.0, 1.0);
+            rightFPower = Range.clip(drive - turn, -1.0, 1.0);
+            leftBPower = Range.clip(drive + turn, -1.0, 1.0);
+            rightBPower = Range.clip(drive - turn, -1.0, 1.0);
+        } else if (strafe != 0) {
+            // Strafing
+            leftFPower = -strafe;
+            rightFPower = strafe;
+            leftBPower = strafe;
+            rightBPower = -strafe;
+        } else {
+            leftFPower = 0;
+            rightFPower = 0;
+            leftBPower = 0;
+            rightBPower = 0;
+        }
+
+        leftFront.setPower(leftFPower);
+        leftRear.setPower(leftBPower);
+        rightFront.setPower(rightFPower);
+        rightRear.setPower(rightBPower);
+    }
+
+    // returns isComplete
+    public boolean followPath(DrivePath path) {
+        setModules(path);
+
+        if (inPathTolerance) {
+            t += DriveConstants.AUTON_CHANGE_CONSTANT;
+        }
+
+        return t >= path.getEnd();
+    }
+
     public void setModules(DrivePath path) { // in ratio to each other, turning clockwise
         double diagonalHalf = DriveConstants.TRACK_WIDTH / 2 * Math.sqrt(2);
 
         // leftFront, rightFront, rightRear, leftRear
         // initial positions are all known, assuming 0, 0 and 0 rotation. x / y =+- halfWidth * sqrt(2)
-        double[][] initialPositions = {{-diagonalHalf, diagonalHalf}, {diagonalHalf, diagonalHalf}, {diagonalHalf, -diagonalHalf}, {-diagonalHalf, -diagonalHalf}};
-        double[][] finalPositions = wheelPositions(path.getPosition(DriveConstants.CHANGE_CONSTANT));
+        double[][] initialPositions = getCurrentPosition();
+        double[][] finalPositions = wheelPositions(path.getPosition(t+DriveConstants.AUTON_CHANGE_CONSTANT));
 
         setDirections(initialPositions, finalPositions);
         setSpeeds(initialPositions, finalPositions);
@@ -53,7 +97,7 @@ public class DriveTrain extends SubsystemBase {
         // leftFront, rightFront, rightRear, leftRear
         // initial positions are all known, assuming 0, 0 and 0 rotation. x / y =+- halfWidth * sqrt(2)
         double[][] initialPositions = {{-diagonalHalf, diagonalHalf}, {diagonalHalf, diagonalHalf}, {diagonalHalf, -diagonalHalf}, {-diagonalHalf, -diagonalHalf}};
-        double[][] finalPositions = wheelPositions(teleopPath(gamepadX, gamepadY, turn, DriveConstants.CHANGE_CONSTANT));
+        double[][] finalPositions = wheelPositions(teleopPath(gamepadX, gamepadY, turn, DriveConstants.TELEOP_CHANGE_CONSTANT));
 
         setDirections(initialPositions, finalPositions);
         setSpeeds(initialPositions, finalPositions);
@@ -74,6 +118,12 @@ public class DriveTrain extends SubsystemBase {
                 Math.sqrt(Math.pow(finalPositions[3][0] - initialPositions[3][0], 2) + Math.pow(finalPositions[3][1] - initialPositions[3][1], 2))};
 
         double maxDistance =  Math.max(Math.max(Math.max(distances[0], distances[1]), distances[2]), distances[3]);
+
+        if (maxDistance > DriveConstants.PATH_FOLLOWING_TOLERANCE) {
+            inPathTolerance = false;
+        } else {
+            inPathTolerance = true;
+        }
 
         modules[0].setVelocity(distances[0]/maxDistance);
         modules[1].setVelocity(distances[1]/maxDistance);
@@ -104,6 +154,11 @@ public class DriveTrain extends SubsystemBase {
         wheelPositions[3][1] =(x-halfWidth)*Math.sin(angle)+(y-halfWidth)*Math.cos(angle)-x*Math.sin(angle)-y*Math.cos(angle)+y;
 
         return wheelPositions;
+    }
+
+    private double[][] getCurrentPosition() {
+        // TODO: implement this based on odo
+        return new double[0][];
     }
 
     private double[] teleopPath(double gamepadX, double gamepadY, double turn, double t) { // convert forward/turn to path so we can approx the derivative
