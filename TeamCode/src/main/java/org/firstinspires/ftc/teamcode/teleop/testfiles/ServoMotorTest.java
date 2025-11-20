@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.teleop.testfiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@TeleOp(name = "Servo Motor Test", group = "testing")
 public class ServoMotorTest extends OpMode {
     Servo testServo;
+    CRServo testCRServo;
     DcMotorEx testMotor;
 
-    Gamepad previousGamepad1, currentGamepad1;
+    Gamepad previousGamepad1 = new Gamepad(), currentGamepad1 = new Gamepad();
     double servoPos = 0;
 
     @Override
@@ -19,6 +23,7 @@ public class ServoMotorTest extends OpMode {
 
         // Initialize the servo
         testServo = hardwareMap.get(Servo.class, "testServo");
+        testCRServo = hardwareMap.get(CRServo.class, "testCRServo");
         testMotor = hardwareMap.get(DcMotorEx.class, "testMotor");
 
         currentGamepad1.copy(gamepad1);
@@ -35,19 +40,26 @@ public class ServoMotorTest extends OpMode {
 
         telemetry.addLine("Servo and Motor Test");
         telemetry.addLine();
-        telemetry.addData("D-Pad up", "Increase servo position");
-        telemetry.addData("D-Pad down", "Decrease servo position");
+        telemetry.addData("Triangle", gamepad1.triangle);
+        telemetry.addData("Cross", gamepad1.cross);
         telemetry.addData("Left joystick up/down", "Motor power");
         telemetry.addLine();
         telemetry.addData("Servo position", testServo.getPosition());
-        telemetry.addData("Motor power", testMotor.getPower());
+        telemetry.addData("Motor power", testCRServo.getPower());
 
-        if (currentGamepad1.dpad_up && !previousGamepad1.dpad_up) {
-            servoPos += 0.1;
-        } else if (currentGamepad1.dpad_down && !previousGamepad1.dpad_down) {
-            servoPos -= 0.1;
+        if (gamepad1.square) {
+            servoPos = 1;
+        } else if (gamepad1.triangle) {
+            servoPos = 0;
         }
 
-        testMotor.setPower(currentGamepad1.left_stick_y);
+        testMotor.setPower(0);
+        if (gamepad1.left_bumper) {
+            testMotor.setPower(1);
+        }
+
+        testServo.setPosition(servoPos);
+
+        testCRServo.setPower(currentGamepad1.left_stick_y);
     }
 }
