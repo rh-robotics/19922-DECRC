@@ -2,12 +2,8 @@ package org.firstinspires.ftc.teamcode.teleop.testfiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.subsystems.SwerveModule;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
 @TeleOp(name = "Swerve Module Test", group = "testing")
 public class SwerveModuleTest extends OpMode {
@@ -19,7 +15,7 @@ public class SwerveModuleTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        swerveModule = new SwerveModule("testMotor", "testServo", hardwareMap, 42, 325, 5);
+        swerveModule = new SwerveModule(hardwareMap, "testMotor", "testServo", 42);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
