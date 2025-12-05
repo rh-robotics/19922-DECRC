@@ -21,7 +21,6 @@ public class AprilTagTest {
     private List<AprilTagDetection> detectedTags = new ArrayList<>();
     private Telemetry telemetry;
 
-    @Override
     public void init(HardwareMap hardwareMap, Telemetry telemetry){
         this.telemetry = telemetry;
 
@@ -37,7 +36,7 @@ public class AprilTagTest {
         //note that the camera is called "Webcam" in hardware map :)
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam"));
         builder.setCameraResolution(new Size(640, 480));
-        builder.addProcessor(AprilTagProcessor);
+//        builder.addProcessor(AprilTagProcessor);
 
         visionPortal = builder.build();
     }
@@ -51,9 +50,9 @@ public class AprilTagTest {
     }
 
     public void displayDetectionTelemetry(AprilTagDetection detectedID) {
-        if (detectedID = null) {
-            return;
-        }
+//        if (detectedID = null) {
+//            return;
+//        }
         if (detectedID.metadata != null) {
             telemetry.addLine(String.format("\n==== (ID %d) %s", detectedID.id, detectedID.metadata.name));
             telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detectedID.ftcPose.x, detectedID.ftcPose.y, detectedID.ftcPose.z));
