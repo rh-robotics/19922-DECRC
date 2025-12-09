@@ -15,10 +15,12 @@ public class SwerveModuleTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        swerveModule = new SwerveModule(hardwareMap, "testMotor", "testServo", 42);
+        swerveModule = new SwerveModule(hardwareMap, "testMotor", "testServo", 195, false);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
+
+        swerveModule.setDirection(0);
     }
 
     @Override
@@ -26,16 +28,30 @@ public class SwerveModuleTest extends OpMode {
         telemetry.addData("Speed", swerveModule.getVelocity());
         telemetry.addData("Direction", swerveModule.getDirection());
         telemetry.addLine();
-
-        telemetry.addData("Left x", gamepad1.left_stick_x);
-        telemetry.addData("Left y", gamepad1.left_stick_y);
+        
+        double[] positions = new double[2];
 
         if (gamepad1.triangle) {
-            swerveModule.setDirection(90);
-        } else {
-            swerveModule.setDirection(gamepad1.left_stick_x * 360);
+            positions = swerveModule.setDirection(0);
+        } else if (gamepad1.circle){
+            positions = swerveModule.setDirection(45);
+        } else if (gamepad1.cross) {
+            positions = swerveModule.setDirection(180);
+        } else if (gamepad1.square) {
+            positions = swerveModule.setDirection(90);
+        } else if (Math.abs(gamepad1.left_stick_x) > 0.05){
+            positions = swerveModule.setDirection((gamepad1.left_stick_x + 1) * 360);
         }
 
-        swerveModule.setVelocity(gamepad1.left_stick_y);
+        telemetry.addLine(String.valueOf(positions[0]));
+        telemetry.addLine(String.valueOf(positions[1]));
+
+        if (gamepad1.left_bumper) {
+            swerveModule.setVelocity(0.3);
+        } else {
+            swerveModule.setVelocity(0);
+        }
+
+        telemetry.addLine(String.valueOf(swerveModule.isReversed()));
     }
 }

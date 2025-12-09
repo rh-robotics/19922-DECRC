@@ -24,10 +24,11 @@ public class DriveTrain extends SubsystemBase {
 
     public void configureSwerve(HardwareMap hardwareMap) {
         modules = new SwerveModule[]{
-                new SwerveModule(hardwareMap, "leftFront", "leftFront"),
-                new SwerveModule(hardwareMap, "rightFront", "rightFront"),
-                new SwerveModule(hardwareMap, "leftRear", "leftRear"),
-                new SwerveModule(hardwareMap, "rightRear", "rightRear")};
+                new SwerveModule(hardwareMap, "leftFront", "leftFrontServo", DriveConstants.LEFTFRONT_ZERO, DriveConstants.LEFTFRONT_ISREVERSED),
+                new SwerveModule(hardwareMap, "rightFront", "rightFrontServo", DriveConstants.RIGHTFRONT_ZERO, DriveConstants.RIGHTFRONT_ISREVERSED),
+                new SwerveModule(hardwareMap, "leftRear", "leftRearServo", DriveConstants.LEFTREAR_ZERO, DriveConstants.LEFTREAR_ISREVERSED),
+                new SwerveModule(hardwareMap, "rightRear", "rightRearServo", DriveConstants.RIGHTREAR_ZERO, DriveConstants.RIGHTREAR_ISREVERSED)};
+
     }
 
     public void configureStrafe(HardwareMap hardwareMap) {
@@ -101,6 +102,51 @@ public class DriveTrain extends SubsystemBase {
 
         setDirections(initialPositions, finalPositions);
         setSpeeds(initialPositions, finalPositions);
+    }
+
+    public void setModulesToTurn(double speed) {
+        speed *= DriveConstants.TURN_MAX_SPEED;
+
+        modules[0].setDirection(45);
+        modules[1].setDirection(135);
+        modules[2].setDirection(135);
+        modules[3].setDirection(45);
+
+        modules[0].setVelocity(speed);
+        modules[1].setVelocity(-speed);
+        modules[2].setVelocity(speed);
+        modules[3].setVelocity(-speed);
+    }
+
+    public void setModules(double speed, double[] directions) {
+        modules[0].setDirection(directions[0]);
+        modules[1].setDirection(directions[1]);
+        modules[2].setDirection(directions[2]);
+        modules[3].setDirection(directions[3]);
+
+        modules[0].setVelocity(speed);
+        modules[1].setVelocity(speed);
+        modules[2].setVelocity(speed);
+        modules[3].setVelocity(speed);
+    }
+
+    public void setModules(double speed, double direction) {
+        modules[0].setDirection(direction);
+        modules[1].setDirection(direction);
+        modules[2].setDirection(direction);
+        modules[3].setDirection(direction);
+
+        modules[0].setVelocity(speed);
+        modules[1].setVelocity(speed);
+        modules[2].setVelocity(speed);
+        modules[3].setVelocity(speed);
+    }
+
+    public void setModules(double speed) {
+        modules[0].setVelocity(speed);
+        modules[1].setVelocity(speed);
+        modules[2].setVelocity(speed);
+        modules[3].setVelocity(speed);
     }
 
     private void setDirections(double[][] initialPositions, double[][] finalPositions) {
@@ -182,5 +228,10 @@ public class DriveTrain extends SubsystemBase {
 
         double angle = turn * t * (2 * Math.PI / 360) * DriveConstants.ROTATION_SPEED_CONSTANT;
         return new double[] {x, y, angle};
+    }
+
+    public double[] getMotorEncoderValues() {
+        return new double[] {modules[0].getMotorEncoterValue(), modules[1].getMotorEncoterValue(),
+                modules[2].getMotorEncoterValue(), modules[3].getMotorEncoterValue()};
     }
 }
