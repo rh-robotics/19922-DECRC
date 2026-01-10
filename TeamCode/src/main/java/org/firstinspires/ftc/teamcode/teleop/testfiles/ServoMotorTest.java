@@ -51,6 +51,8 @@ public class ServoMotorTest extends OpMode {
             servoPos = 1;
         } else if (gamepad1.triangle) {
             servoPos = 0;
+        } else if (gamepad1.left_stick_y > 0.05) {
+            servoPos = gamepad1.left_stick_y;
         }
 
         testMotor.setPower(0);
