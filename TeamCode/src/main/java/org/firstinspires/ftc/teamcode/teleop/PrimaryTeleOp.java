@@ -18,6 +18,7 @@ public class PrimaryTeleOp extends OpMode {
     private DcMotorEx launcher;
     private CRServo leftFeeder;
     private CRServo rightFeeder;
+    private TeleOpStateManager stateManager;
 
     double gamepadSpeed = 0;
     double gamepadDirection = 0;
@@ -30,9 +31,10 @@ public class PrimaryTeleOp extends OpMode {
     public void init() {
         // Tell the driver the Op is initializing
         telemetry.addData("Status", "Initializing");
+        stateManager = TeleOpStateManager.getInstance();
 
-        previousGamepad.copy(gamepad1);
-        currentGamepad.copy(gamepad1);
+//        previousGamepad.copy(gamepad1);
+//        currentGamepad.copy(gamepad1);
 
         // Initialize the drive train
         drive = new DriveTrain(hardwareMap, true);
@@ -44,12 +46,12 @@ public class PrimaryTeleOp extends OpMode {
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftFeeder.setPower(0);
-        rightFeeder.setPower(0);
+//        leftFeeder.setPower(0);
+//        rightFeeder.setPower(0);
 
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        initialGamepadValues = new double[] {gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.right_stick_y};
+//        initialGamepadValues = new double[] {gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.right_stick_y};
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -57,13 +59,24 @@ public class PrimaryTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        previousGamepad.copy(currentGamepad);
-        currentGamepad.copy(gamepad1);
-        double[] currentJoystickValues = new double[] {};
+//        previousGamepad.copy(currentGamepad);
+//        currentGamepad.copy(gamepad1);
+//        double[] currentJoystickValues = new double[] {};
+        stateManager.newGamePad(gamepad1);
+//        gamepadSpeed = Math.sqrt(Math.pow(gamepad1.left_stick_y, 2) + Math.pow(gamepad1.left_stick_x, 2));
+//        gamepadDirection = 180 - (Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) * 180 / Math.PI + 90);
 
-        gamepadSpeed = Math.sqrt(Math.pow(gamepad1.left_stick_y, 2) + Math.pow(gamepad1.left_stick_x, 2));
-        gamepadDirection = 180 - (Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) * 180 / Math.PI + 90);
-
+        if (stateManager.isTurn()) {
+            drive.setModulesToTurn(stateManager.getTurnRate());
+            telemetry.addLine("Turning: Right Joystick, Triggers");
+        } else if (stateManager.isSpeedAndDirection()) {
+            drive.setModules(stateManager.getGamepadSpeed(), stateManager.getGamepadDirection());
+            telemetry.addLine("Driving w/ direction: Left Joystick");
+        } else {
+            drive.setModules(stateManager.getGamepadSpeed());
+            telemetry.addLine("Driving w/o direction: Left Joystick");
+        }
+        /*
         if (gamepad1.left_trigger >= 0.05 || gamepad1.right_trigger >= 0.05) { // turn
             drive.setModulesToTurn(gamepad1.right_trigger - gamepad1.left_trigger);
         } else if (Math.abs(gamepad1.right_stick_x) > 0.05) {
@@ -85,6 +98,8 @@ public class PrimaryTeleOp extends OpMode {
         } else {
             launcher.setPower(0);
         }
+        */
+        launcher.setPower(stateManager.launcherPower());
 
         if (gamepad1.circle){ // feeders
             leftFeeder.setPower(1);
@@ -94,9 +109,6 @@ public class PrimaryTeleOp extends OpMode {
             rightFeeder.setPower(0);
         }
 
-        telemetry.addLine("Driving: Left Joystick");
-        telemetry.addLine("Turning: Right Joystick, Triggers");
-        telemetry.addLine();
         telemetry.addLine("Triangle: Launch Motor Toggle");
         telemetry.addLine("Circle: Launch");
     }
