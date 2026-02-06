@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-@Config
-@TeleOp(name = "Independent Motor Speed Test", group = "testing")
+//@Config
+//@TeleOp(name = "Independent Motor Speed Test", group = "testing")
 public class IndependentMotorSpeedTest extends OpMode {
     public static double topMotorPower = 0;
     public static double bottomMotorPower = 0;

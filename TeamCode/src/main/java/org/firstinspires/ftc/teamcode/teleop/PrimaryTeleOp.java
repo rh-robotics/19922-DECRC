@@ -35,14 +35,14 @@ public class PrimaryTeleOp extends OpMode {
         currentGamepad.copy(gamepad1);
 
         // Initialize the drive train
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "leftFeeder");
         rightFeeder = hardwareMap.get(CRServo.class, "rightFeeder");
 
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         leftFeeder.setPower(0);
         rightFeeder.setPower(0);
@@ -59,6 +59,7 @@ public class PrimaryTeleOp extends OpMode {
     public void loop() {
         previousGamepad.copy(currentGamepad);
         currentGamepad.copy(gamepad1);
+
         double[] currentJoystickValues = new double[] {};
 
         gamepadSpeed = Math.sqrt(Math.pow(gamepad1.left_stick_y, 2) + Math.pow(gamepad1.left_stick_x, 2));

@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 
-@TeleOp(name = "Launcher Assisted")
+//@TeleOp(name = "Launcher Assisted")
 public class LauncherAssisted extends OpMode {
 
     /* =======================
@@ -143,7 +143,7 @@ public class LauncherAssisted extends OpMode {
         kicker.setPosition(kickerBackPosition);
 
         // Initialize the drive
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
         imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(

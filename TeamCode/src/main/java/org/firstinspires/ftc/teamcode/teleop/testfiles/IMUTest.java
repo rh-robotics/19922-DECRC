@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 
-@Config
-@TeleOp(name = "IMU Test Strafe")
+//@Config
+//@TeleOp(name = "IMU Test Strafe")
 public class IMUTest extends OpMode {
     DriveTrain drive;
     public static double direction = 0;
@@ -29,7 +29,7 @@ public class IMUTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
         imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(

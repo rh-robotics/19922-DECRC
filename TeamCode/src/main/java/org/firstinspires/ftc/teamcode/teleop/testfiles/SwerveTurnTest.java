@@ -6,8 +6,8 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
-@Config
-@TeleOp(name = "Swerve Turn Test", group = "testing")
+//@Config
+//@TeleOp(name = "Swerve Turn Test", group = "testing")
 public class SwerveTurnTest extends LinearOpMode {
     SwerveModule swerveModule;
     public static boolean testing = false;
@@ -31,7 +31,7 @@ public class SwerveTurnTest extends LinearOpMode {
             }
 
             telemetry.addData("Direction", swerveModule.getDirection());
-            telemetry.addData("Reversed", swerveModule.isReversed());
+//            telemetry.addData("Reversed", swerveModule.isReversed());
             telemetry.addData("Position", swerveModule.servo.getPosition());
         }
     }

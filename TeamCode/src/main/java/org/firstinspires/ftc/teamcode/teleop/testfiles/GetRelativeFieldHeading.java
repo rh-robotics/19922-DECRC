@@ -26,7 +26,7 @@ public class GetRelativeFieldHeading extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
         imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(

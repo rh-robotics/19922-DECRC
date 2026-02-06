@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-@TeleOp(name = "Toggle Test", group = "testing")
+//@TeleOp(name = "Toggle Test", group = "testing")
 public class ToggleTest extends OpMode {
     Gamepad previousGamepad = new Gamepad(), currentGamepad = new Gamepad();
     boolean toggle;

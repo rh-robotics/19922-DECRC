@@ -5,18 +5,21 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
+
+import java.util.Arrays;
 
 @Config
 @TeleOp(name = "Swerve Drive")
 public class SwerveDrive extends OpMode {
     DriveTrain drive;
-    public static double direction = 0;
     public static double speed = 0;
     double gamepadSpeed = 0;
     double gamepadDirection = 0;
     public static boolean usingGamepad = true;
     public static boolean paused = false;
+    public static double[] directions = new double[] {0, 0, 0, 0};
 
     @Override
     public void init() {
@@ -24,7 +27,7 @@ public class SwerveDrive extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -39,12 +42,18 @@ public class SwerveDrive extends OpMode {
             if (usingGamepad) {
                 // to keep the wheels from turning without input
                 if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0 || gamepad1.right_stick_x != 0) {
-                    drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x/10);
+                    double[] array = drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+                    telemetry.addData("stuff", Arrays.toString(array));
+                    telemetry.addData("Relative heading deg", drive.getRelativeHeading(AngleUnit.DEGREES));
+                    telemetry.addData("Relative heading rad", drive.getRelativeHeading(AngleUnit.RADIANS));
+
+//                    telemetry.addData("3", Arrays.toString(array[3]));
+
                 } else {
                     drive.setModules(0);
                 }
             } else {
-                drive.setModules(speed, direction);
+                drive.setModules(speed, directions);
             }
         }
 

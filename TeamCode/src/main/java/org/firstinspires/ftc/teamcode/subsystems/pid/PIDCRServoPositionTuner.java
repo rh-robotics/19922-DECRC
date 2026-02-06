@@ -4,24 +4,27 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
-@TeleOp(name = "PID Velocity Tuner", group = "PIDs")
-public class PIDVelocityTuner extends OpMode {
-    public static String motorName = "motor";
+@TeleOp(name = "PID CR Servo With Absolute Encoder Position Tuner", group = "PIDs")
+public class PIDCRServoPositionTuner extends OpMode {
+    public static String servoName = "servo";
     public static double Kp = 0;
     public static double Ki = 0;
     public static double Kd = 0;
-    public static double Kf = 0;
 
-    public static double reference = 1;
+    public static double reference = 100;
 
     private PIDController PIDControl;
-    private DcMotorEx motor;
+    private CRServo servo;
+    AnalogInput absoluteEncoder;
     FtcDashboard dashboard;
     Telemetry dashboardTelemetry;
 
@@ -30,21 +33,19 @@ public class PIDVelocityTuner extends OpMode {
         dashboard = FtcDashboard.getInstance();
         dashboardTelemetry = dashboard.getTelemetry();
 
-        motor = hardwareMap.get(DcMotorEx.class, motorName);
-        PIDControl = new PIDController(Kp, Ki, Kd, Kf);
+        servo = hardwareMap.get(CRServo.class, servoName);
+        PIDControl = new PIDController(Kp, Ki, Kd);
 
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
     }
 
     @Override
     public void loop() {
-        PIDControl = new PIDController(Kp, Ki, Kd, Kf);
+        double angle = (absoluteEncoder.getVoltage() / 2.2) * 360.0; // 2.2 volts converts to 360 degrees
 
-        motor.setVelocity(PIDControl.getPower(reference, motor.getVelocity()));
+        servo.setPower(PIDControl.getPower(reference, angle));
 
         dashboardTelemetry.addData("Reference", reference);
-        dashboardTelemetry.addData("Current motor velocity", motor.getVelocity());
-
-        dashboardTelemetry.update();
+        dashboardTelemetry.addData("Current servo position", angle);
     }
 }

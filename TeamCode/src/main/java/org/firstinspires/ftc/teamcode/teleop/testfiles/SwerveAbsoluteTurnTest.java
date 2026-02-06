@@ -7,14 +7,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
 @Config
-@TeleOp(name = "Swerve Module Test", group = "testing")
-public class SwerveModuleTest extends OpMode {
+@TeleOp(name = "Swerve Module Absolute Encoder Test", group = "testing")
+public class SwerveAbsoluteTurnTest extends OpMode {
     SwerveModule swerveModule;
     public static String motorName = "leftFront";
     public static String servoName = "leftFrontServo";
     public static double zeroPosition = 0;
     public static double servoDirection = 0;
     public static double motorVelocity = 0;
+    public static double[] motorPID = {0, 0, 0, 0};
+    public static double[] servoPID = {0, 0, 0};
 
     @Override
     public void init() {
@@ -22,7 +24,7 @@ public class SwerveModuleTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        swerveModule = new SwerveModule(hardwareMap, motorName, servoName, zeroPosition, false);
+        swerveModule = new SwerveModule(hardwareMap, motorName, servoName, zeroPosition, false, motorPID, servoPID);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -32,7 +34,7 @@ public class SwerveModuleTest extends OpMode {
 
     @Override
     public void loop() {
-        swerveModule.servo.setPosition(servoDirection);
-;       swerveModule.setVelocity(motorVelocity);
+        swerveModule.setDirection(servoDirection);
+        swerveModule.setVelocity(motorVelocity);
     }
 }

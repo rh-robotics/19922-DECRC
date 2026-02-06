@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "Servo Motor Test", group = "testing")
+//@TeleOp(name = "Servo Motor Test", group = "testing")
 public class ServoMotorTest extends OpMode {
     Servo testServo;
     CRServo testCRServo;

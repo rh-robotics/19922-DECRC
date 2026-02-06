@@ -24,7 +24,7 @@ public class SimpleAuton extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the drive train
-        drive = new DriveTrain(hardwareMap, true);
+        drive = new DriveTrain(hardwareMap, true, false);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
