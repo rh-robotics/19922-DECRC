@@ -30,4 +30,10 @@ public class DriveConstants {
     public final static double[] RIGHT_REAR_PID = new double[] {0, 0, 0, 0};
 
     public final static double TURN_MAX_SPEED = 0.5;
+
+    // Spline path default values
+    public static final int DEFAULT_SPLINE_POINTS = 100;
+    public static final double DEFAULT_SEGMENT_LENGTH = 4; // in
+    public static final int DEFAULT_NEXT_POINTS_RANGE = 3;
+    public static final double DEFAULT_CATCH_RANGE = 6; // in
 }
