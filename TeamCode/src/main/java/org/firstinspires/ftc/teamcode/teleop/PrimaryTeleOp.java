@@ -35,7 +35,7 @@ public class PrimaryTeleOp extends OpMode {
         currentGamepad.copy(gamepad1);
 
         // Initialize the drive train
-        drive = new DriveTrain(hardwareMap, true, false);
+        drive = new DriveTrain(hardwareMap, true);
 
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "leftFeeder");

@@ -24,7 +24,7 @@ public class SimpleSwerve extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        drive = new DriveTrain(hardwareMap, true, false);
+        drive = new DriveTrain(hardwareMap, true);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");

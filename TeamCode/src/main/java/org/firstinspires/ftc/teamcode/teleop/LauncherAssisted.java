@@ -143,7 +143,7 @@ public class LauncherAssisted extends OpMode {
         kicker.setPosition(kickerBackPosition);
 
         // Initialize the drive
-        drive = new DriveTrain(hardwareMap, true, false);
+        drive = new DriveTrain(hardwareMap, true);
         imu = hardwareMap.get(IMU.class, "imu");
 
         RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(

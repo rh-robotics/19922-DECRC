@@ -27,7 +27,7 @@ public class SwerveDrive extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        drive = new DriveTrain(hardwareMap, true, false);
+        drive = new DriveTrain(hardwareMap, true);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -42,8 +42,7 @@ public class SwerveDrive extends OpMode {
             if (usingGamepad) {
                 // to keep the wheels from turning without input
                 if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0 || gamepad1.right_stick_x != 0) {
-                    double[] array = drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
-                    telemetry.addData("stuff", Arrays.toString(array));
+                    drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
                     telemetry.addData("Relative heading deg", drive.getRelativeHeading(AngleUnit.DEGREES));
                     telemetry.addData("Relative heading rad", drive.getRelativeHeading(AngleUnit.RADIANS));
 

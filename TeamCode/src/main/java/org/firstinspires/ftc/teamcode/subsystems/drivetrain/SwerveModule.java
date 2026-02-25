@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,107 +9,82 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.subsystems.pid.PIDController;
-
 public class SwerveModule {
     private DcMotorEx motor;
     public Servo servo;
     public CRServo crservo; // use one, this if absolutes are in use
     final double ZERO_POSITION; // in degrees, not a servo position
     private double setPos = 0;
-    private boolean usingPID = false, usingAbsolutes = false;
+    private final boolean usingAbsolutes = DriveConstants.USING_ABSOLUTES;
+    private final boolean usingDrivePID = DriveConstants.USING_DRIVE_PID;
     AnalogInput absoluteEncoder;
-    PIDController WheelPIDControl, CRServoPIDControl;
-    double crServoTargetPos;
+    PIDController swervePIDController, drivePIDController;
+    double swerveTargetPos;
 
     // CONSTRUCTORS
-
-    // initialize with specific values for zeroPosition and isReversed assumiing use of PIDs
-    public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName, double zeroPosition, boolean isReversed, double[] WheelPIDValues) {
-        motor = hardwareMap.get(DcMotorEx.class, motorName);
-        servo = hardwareMap.get(Servo.class, servoName);
-
-        if (isReversed) {
-            motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        }
-
-        // set constants
-        ZERO_POSITION = zeroPosition; // converts to a fraction of rotation that can be set on the servo
-
-        // set up PID
-        this.usingPID = true;
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        WheelPIDControl = new PIDController(WheelPIDValues[0], WheelPIDValues[1], WheelPIDValues[2], WheelPIDValues[3]);
-    }
-
-    // Constructor for using absolute, using this assumes use of an absolute
-    public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName, double zeroPosition, boolean isReversed, double[] WheelPIDValues, double[] CRServoPIDValues) {
-        motor = hardwareMap.get(DcMotorEx.class, motorName);
-        crservo = hardwareMap.get(CRServo.class, servoName);
-
-        if (isReversed) {
-            motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        }
-
-        // set constants
-        ZERO_POSITION = zeroPosition; // converts to a fraction of rotation that can be set on the servo
-
-        // set up PID
-        this.usingPID = true;
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        WheelPIDControl = new PIDController(WheelPIDValues[0], WheelPIDValues[1], WheelPIDValues[2], WheelPIDValues[3]);
-
-        // set up absolutes
-//        this.usingAbsolutes = true;
-        absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
-        crServoTargetPos = getServoPosition();
-
-        CRServoPIDControl = new PIDController(CRServoPIDValues[0], CRServoPIDValues[1], CRServoPIDValues[2], CRServoPIDValues[3]);
-    }
-
-    // initialize with specific values for zeroPosition and isReversed assuming no use of PIDs
     public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName, double zeroPosition, boolean isReversed) {
         motor = hardwareMap.get(DcMotorEx.class, motorName);
-        servo = hardwareMap.get(Servo.class, servoName);
 
         if (isReversed) {
             motor.setDirection(DcMotorSimple.Direction.REVERSE);
         }
-
-        // set constants
-        ZERO_POSITION = zeroPosition; // converts to a fraction of rotation that can be set on the servo
-
-        // set up PID
-        this.usingPID = false;
-
-        // assume not using PID, disadvantage is auto cap at ~80% with internal PIDs
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        if (usingAbsolutes) { // implied use of PIDs if we're using absolutes, also determines use of CR vs servo
+            crservo = hardwareMap.get(CRServo.class, servoName);
+            swervePIDController = new PIDController(DriveConstants.SWERVE_TURN_PID[0], DriveConstants.SWERVE_TURN_PID[1], DriveConstants.SWERVE_TURN_PID[2]);
+            absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
+        } else {
+            servo = hardwareMap.get(Servo.class, servoName);
+        }
+
+        if (usingDrivePID) {
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            drivePIDController = new PIDController(DriveConstants.SWERVE_MOTOR_PID[0], DriveConstants.SWERVE_MOTOR_PID[1], DriveConstants.SWERVE_MOTOR_PID[2]);
+        }
+
+        // set constants
+        ZERO_POSITION = zeroPosition;
+
+        swerveTargetPos = getServoPosition();
     }
 
     // initialize with default values for zeroPosition and isReversed
     public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName) {
         motor = hardwareMap.get(DcMotorEx.class, motorName);
-        servo = hardwareMap.get(Servo.class, servoName);
 
-        // set constants
-        ZERO_POSITION = 0;
-
-        this.usingPID = false;
-
-        // assume not using PID, disadvantage is auto cap at ~80% with internal PIDs
+        motor.setDirection(DcMotorSimple.Direction.FORWARD); // default to forward
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        if (usingAbsolutes) { // implied use of PIDs if we're using absolutes, also determines use of CR vs servo
+            crservo = hardwareMap.get(CRServo.class, servoName);
+            swervePIDController = new PIDController(DriveConstants.SWERVE_TURN_PID[0], DriveConstants.SWERVE_TURN_PID[1], DriveConstants.SWERVE_TURN_PID[2]);
+            absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
+        } else {
+            servo = hardwareMap.get(Servo.class, servoName);
+        }
+
+        if (usingDrivePID) {
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            drivePIDController = new PIDController(DriveConstants.SWERVE_MOTOR_PID[0], DriveConstants.SWERVE_MOTOR_PID[1], DriveConstants.SWERVE_MOTOR_PID[2]);
+        }
+
+        // set constants
+        ZERO_POSITION = 0; // default to 0
+
+        swerveTargetPos = getServoPosition();
     }
 
     // SETTERS
 
     // Set direction of servo swerve module
-    public double[] setDirection(double degrees) {
-        setPos = degrees;
+    public void setDirection(double target) {
+        setPos = target; // for checking for reversal, since the setPos isn't going to be the actual direction we're pointing at sometimes since being off by 180 is equivalent if you're going backwards
 
-//        if (!usingAbsolutes) {
-            double backwardChange = DegreesToServoPosition((degrees - servoPosToDegrees(servo.getPosition()) + 180 - ZERO_POSITION) % 180 - 180); // in degrees
+        if (!usingAbsolutes) { // implied use of PIDs (and thus CR servos) if we're using absolutes
+            double backwardChange = DegreesToServoPosition((target - servoPosToDegrees(servo.getPosition()) + 180 - ZERO_POSITION) % 180 - 180); // in degrees
             double forwardChange = DegreesToServoPosition(servoPosToDegrees(backwardChange) + 180);
 
             // figure out which one is closer
@@ -127,14 +103,23 @@ public class SwerveModule {
                     servo.setPosition(servo.getPosition() + forwardChange);
                 }
             }
+        } else {
+            // this is complicated to avoid ever going over the "bump" between 0 and 360 that would mess up the PID
+            double backwardChange = Math.floorMod((int) (target - servo.getPosition() + 180 - ZERO_POSITION), 180) - 180;
+            double forwardChange = backwardChange + 180;
 
-            // for testing and debugging
-            return new double[]{forwardChange, backwardChange};
-//        } else {
-//            crservo.setPower(CRServoPIDControl.getPower(getServoPosition(), degrees));
-//        }
-//
-//        return null;
+            double smallestChange = forwardChange;
+            if (Math.abs(backwardChange) < forwardChange) {
+                smallestChange = backwardChange;
+            }
+
+            // if change is positive, target > pos
+            double shiftedServoPos = 180 - (smallestChange / 2);
+            double shiftedTargetPos = 180 + (smallestChange / 2);
+
+            double power = swervePIDController.calculate(shiftedServoPos, shiftedTargetPos);
+            crservo.setPower(power);
+        }
     }
 
     // ONLY for testing purposes
@@ -142,13 +127,17 @@ public class SwerveModule {
         servo.setPosition(position);
     }
 
+    public void setCRServoPower(double power) {
+        crservo.setPower(power);
+    }
+
     // Set power of motor
     public void setVelocity(double speed) {
-        if (usingPID) {
+        if (usingDrivePID) { // use of absolutes implies the use of a pid
             if (isReversed()) {
-                motor.setPower(WheelPIDControl.getPower(-speed, motor.getVelocity()));
+                motor.setPower(drivePIDController.calculate(-speed, motor.getVelocity())); // TODO: this isn't right I think
             } else {
-                motor.setPower(WheelPIDControl.getPower(speed, motor.getVelocity()));
+                motor.setPower(drivePIDController.calculate(speed, motor.getVelocity()));
             }
         } else {
             if (isReversed()) {
@@ -192,10 +181,10 @@ public class SwerveModule {
     }
 
     // gets servo's actual position
-    private double getServoPosition() {
-//        if (!usingAbsolutes) {
+    public double getServoPosition() {
+        if (!usingAbsolutes) {
             return servo.getPosition();
-//        }
-//        return (absoluteEncoder.getVoltage() / 2.2) * 360.0; // if using absolutes
+        }
+        return (absoluteEncoder.getVoltage() / 2.2) * 360.0; // if using absolutes
     }
 }

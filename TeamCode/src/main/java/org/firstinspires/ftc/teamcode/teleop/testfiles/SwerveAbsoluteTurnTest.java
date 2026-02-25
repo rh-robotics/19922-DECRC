@@ -24,7 +24,7 @@ public class SwerveAbsoluteTurnTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        swerveModule = new SwerveModule(hardwareMap, motorName, servoName, zeroPosition, false, motorPID, servoPID);
+        swerveModule = new SwerveModule(hardwareMap, motorName, servoName, zeroPosition, false);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -36,5 +36,7 @@ public class SwerveAbsoluteTurnTest extends OpMode {
     public void loop() {
         swerveModule.setDirection(servoDirection);
         swerveModule.setVelocity(motorVelocity);
+
+        telemetry.addData("Absolute Position", swerveModule.getServoPosition());
     }
 }
