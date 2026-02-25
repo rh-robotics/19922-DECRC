@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class Intake {
+import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+
+public class Intake implements SubsystemBase {
     DcMotorEx intakeMotor;
 
     public Intake(HardwareMap hardwareMap, boolean isReversed) {
@@ -22,10 +24,10 @@ public class Intake {
         intakeMotor.setPower(0);
     }
 
-    public void update(Gamepad currentGamepad) {
-        if (currentGamepad.square) {
+    public void teleopUpdate(Gamepad currentGamepad1, Gamepad previousGamepad1, Gamepad currentGamepad2, Gamepad previousGamepad2) {
+        if (currentGamepad1.square) {
             turnOn();
-        } else if (currentGamepad.triangle) {
+        } else if (currentGamepad1.triangle) {
             turnOff();
         }
     }

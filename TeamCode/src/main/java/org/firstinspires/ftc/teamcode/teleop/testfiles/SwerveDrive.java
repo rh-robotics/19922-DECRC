@@ -42,7 +42,7 @@ public class SwerveDrive extends OpMode {
             if (usingGamepad) {
                 // to keep the wheels from turning without input
                 if (gamepad1.left_stick_y != 0 || gamepad1.left_stick_x != 0 || gamepad1.right_stick_x != 0) {
-                    drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+                    drive.setModulesWithGamepad(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, false);
                     telemetry.addData("Relative heading deg", drive.getRelativeHeading(AngleUnit.DEGREES));
                     telemetry.addData("Relative heading rad", drive.getRelativeHeading(AngleUnit.RADIANS));
 

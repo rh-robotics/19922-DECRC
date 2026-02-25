@@ -96,7 +96,7 @@ public class SortingDrum {
         this.state = State.SCORING;
     }
 
-    public void update(Gamepad currentGamepad, Gamepad previousGamepad) {
+    public void teleopUpdate(Gamepad currentGamepad1, Gamepad previousGamepad1, Gamepad currentGamepad2, Gamepad previousGamepad2) {
         // verify that an empty space is currently the one in front
         if (state == State.INTAKING && emptySpace() && getValueInStaticPosition(3) != Artifacts.EMPTY) {
             setPosition = getNearestIndex(Artifacts.EMPTY, 3) + drumPosition;
@@ -130,11 +130,11 @@ public class SortingDrum {
             }
         }
 
-        if (currentGamepad.circle && !previousGamepad.circle) {
+        if (currentGamepad2.circle && !previousGamepad2.circle) {
             mosaicIndex = 0;
-        } else if (currentGamepad.square && !previousGamepad.square) {
+        } else if (currentGamepad2.square && !previousGamepad2.square) {
             mosaicIndex ++;
-        } else if (currentGamepad.triangle && !previousGamepad.triangle) {
+        } else if (currentGamepad2.triangle && !previousGamepad2.triangle) {
             mosaicIndex --;
         }
 

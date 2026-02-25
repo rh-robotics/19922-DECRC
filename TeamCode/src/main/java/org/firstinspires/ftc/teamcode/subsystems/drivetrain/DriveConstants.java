@@ -28,7 +28,8 @@ public class DriveConstants {
     public final static boolean USING_DRIVE_PID = false;
 
     public final static double TURN_MAX_SPEED = 0.5;
-    public final static double TELEOP_MAX_SPEED = 0.2;
+    public final static double TELEOP_MAX_SPEED = 0.5;
+    public final static double TELEOP_SLOW_SPEED = 0.2;
     public final static double AUTON_MAX_SPEED = 0.2;
 
 

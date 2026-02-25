@@ -3,17 +3,19 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.Points;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.RobotEntity;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.SplinePath;
 
-public class DriveTrain {
+public class DriveTrain implements SubsystemBase {
     private SwerveModule[] modules;
     private DcMotorEx leftFront, rightFront, rightRear, leftRear;
     private boolean inPathTolerance = true;
@@ -64,9 +66,23 @@ public class DriveTrain {
         INIT_HEADING = getHeading(AngleUnit.DEGREES);
     }
 
+    public void teleopUpdate(Gamepad currentGamepad1, Gamepad previousGamepad1, Gamepad currentGamepad2, Gamepad previousGamepad2) {
+        if (currentGamepad1.left_trigger >= 0.05 || currentGamepad1.right_trigger >= 0.05) { // turn
+            setModulesToTurn(currentGamepad1.right_trigger - currentGamepad1.left_trigger);
+        } else if (Math.abs(currentGamepad1.right_stick_x) > 0.05) {
+            setModulesToTurn(currentGamepad1.right_stick_x);
+        } else {
+            if (currentGamepad1.left_stick_y != 0 || currentGamepad1.left_stick_x != 0 || currentGamepad1.right_stick_x != 0) {
+                setModulesWithGamepad(currentGamepad1.left_stick_x, currentGamepad1.left_stick_y, currentGamepad1.right_stick_x, currentGamepad1.right_bumper);
+            } else {
+                setModules(0);
+            }
+        }
+    }
+
     // SETTERS
 
-    public void setModulesWithGamepad(double gamepadX, double gamepadY, double turn) { // in ratio to each other, turning clockwise
+    public void setModulesWithGamepad(double gamepadX, double gamepadY, double turn, boolean isSlow) { // in ratio to each other, turning clockwise
         // basically just creating a ghost point based on the values to head towards
         double[] pathConstants = teleopPath(-gamepadX, gamepadY, turn); // x, y, angle pathing to be plugged into getPoints()
         
@@ -76,7 +92,12 @@ public class DriveTrain {
         double[][] nextPositions = getPoints(pathConstants[0], pathConstants[1],
                 relHeading + (pathConstants[2] * DriveConstants.ROTATION_SPEED_DAMPENER));
 
-        setSpeeds(currentPositions, nextPositions, DriveConstants.TELEOP_MAX_SPEED);
+        if (isSlow) {
+            setSpeeds(currentPositions, nextPositions, DriveConstants.TELEOP_SLOW_SPEED);
+        } else {
+            setSpeeds(currentPositions, nextPositions, DriveConstants.TELEOP_MAX_SPEED);
+        }
+
         setDirections(currentPositions, nextPositions);
     }
 
