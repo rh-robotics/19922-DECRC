@@ -5,11 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Autonomous OpMode to test scanning April Tags
@@ -23,6 +27,10 @@ public class AprilTagTest extends LinearOpMode {
 
     // Variable to store our instance of the vision portal.
     private VisionPortal visionPortal;
+
+    private WhiteBalanceControl whiteBalance;
+    private ExposureControl exposure;
+    private GainControl gain;
 
 
     @Override
@@ -115,6 +123,20 @@ public class AprilTagTest extends LinearOpMode {
 
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
+
+        //set white balance, exposure, and gain for the camera to read
+        // (might need to either change or comment out for comp)
+        whiteBalance = visionPortal.getCameraControl(WhiteBalanceControl.class);
+        exposure = visionPortal.getCameraControl(ExposureControl.class);
+        gain = visionPortal.getCameraControl(GainControl.class);
+        whiteBalance.setMode(WhiteBalanceControl.Mode.MANUAL);
+        exposure.setMode(ExposureControl.Mode.Manual);
+
+        //14, 5250, 20 from back triangle @ 4pm
+        exposure.setExposure(18, TimeUnit.MILLISECONDS);
+        whiteBalance.setWhiteBalanceTemperature(5250);
+        gain.setGain(20);
+
 
     }   // end method initAprilTag()
 
