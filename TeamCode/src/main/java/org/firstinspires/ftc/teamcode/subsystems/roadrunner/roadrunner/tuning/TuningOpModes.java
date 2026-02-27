@@ -38,6 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
@@ -137,6 +138,19 @@ public final class TuningOpModes {
                 List<EncoderGroup> encoderGroups = new ArrayList<>();
                 List<EncoderRef> leftEncs = new ArrayList<>(), rightEncs = new ArrayList<>();
                 List<EncoderRef> parEncs = new ArrayList<>(), perpEncs = new ArrayList<>();
+
+                Servo leftFrontServo = hardwareMap.get(Servo.class, "leftFrontServo");
+                Servo leftBackServo = hardwareMap.get(Servo.class, "leftRearServo");
+                Servo rightBackServo = hardwareMap.get(Servo.class, "rightRearServo");
+                Servo rightFrontServo = hardwareMap.get(Servo.class, "rightFrontServo");
+
+                double leftFrontZeroPos = 0.22, rightFrontZeroPos = 0.25, leftBackZeroPos = 0.33, rightBackZeroPos = 0.31;
+
+                leftFrontServo.setPosition(leftFrontZeroPos);
+                rightFrontServo.setPosition(rightFrontZeroPos);
+                leftBackServo.setPosition(leftBackZeroPos);
+                rightBackServo.setPosition(rightBackZeroPos);
+
                 if (md.localizer instanceof MecanumDrive.DriveLocalizer) {
                     MecanumDrive.DriveLocalizer dl = (MecanumDrive.DriveLocalizer) md.localizer;
                     encoderGroups.add(new LynxQuadratureEncoderGroup(

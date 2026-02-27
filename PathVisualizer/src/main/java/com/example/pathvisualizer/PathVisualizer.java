@@ -42,8 +42,7 @@ public class PathVisualizer {
 
         // add side panel
         sidePanel = new SidePanel();
-        sidePanel.setBounds(
-                VisualizerConstants.FIELD_WIDTH, 0, VisualizerConstants.SIDE_PANEL_WIDTH, VisualizerConstants.FIELD_HEIGHT / 2);
+        sidePanel.setBounds(VisualizerConstants.FIELD_WIDTH, 0, VisualizerConstants.SIDE_PANEL_WIDTH, VisualizerConstants.FIELD_HEIGHT / 2);
         root.add(sidePanel);
 
         double[] x = {10, 46, 100, 50, 40};
@@ -67,6 +66,15 @@ public class PathVisualizer {
 
         InteractionLayer interactionLayer = getInteractionLayer(points, splinePath, sidePanel, pointsPlot, segmentsPlot, splinePlot, robotPanel);
         field.add(interactionLayer);
+
+        sidePanel.setOnAddPoint(() -> {
+            points.addPoint();
+        });
+
+        sidePanel.setOnRemovePoint(() -> {
+            points.removePoint();
+        });
+
 
         sidePanel.addChangeListener(() -> {
             pointsPlot.repaint();

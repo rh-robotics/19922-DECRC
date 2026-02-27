@@ -53,6 +53,32 @@ public class Points {
         this.y[i] = y;
     }
 
+    public void addPoint() {
+        if (x.length < 2) {
+            double[] newX = new double[x.length + 1];
+            double[] newY = new double[y.length + 1];
+            double[] newH = new double[h.length + 1];
+
+            for (int i = 0; i < x.length - 2; i++) {
+
+            }
+            x[x.length - 1] = (double) VisualizerConstants.FIELD_WIDTH /2;
+            y[y.length - 1] = (double) VisualizerConstants.FIELD_HEIGHT /2;
+            h[h.length - 1] = 0;
+        } else {
+            double[] thirdToLast = new double[] {x[x.length - 2], y[y.length - 2], h[h.length-2]};
+            double[] last = new double[] {x[x.length - 1], y[y.length - 1], h[h.length-1]};
+            double[] newPoint = new double[] {(last[0] + thirdToLast[0])/2, (last[1] + thirdToLast[1])/2, (last[2] + thirdToLast[2])/2};
+
+            // insert between them
+//            points.add(points.size() - 1, newPoint);
+        }
+    }
+
+    public void removePoint() {
+
+    }
+
     public int getLength() {
         return x.length;
     }

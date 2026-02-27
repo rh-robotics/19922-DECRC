@@ -30,16 +30,22 @@ import com.acmerobotics.roadrunner.ftc.LynxFirmware;
 import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveConstants;
 import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.messages.MecanumLocalizerInputsMessage;
@@ -62,7 +68,7 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 1;
+        public double inPerTick = 96.0/47814.5;
         public double lateralInPerTick = inPerTick;
         public double trackWidthTicks = 0;
 
@@ -106,6 +112,11 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
+    public final Servo leftFrontServo, leftBackServo, rightBackServo, rightFrontServo;
+    PIDController swervePIDController;
+    AnalogInput leftFrontAbsolute, leftBackAbsolute, rightFrontAbsolute, rightBackAbsolute;
+
+    public static double leftFrontZeroPos = 0.22, rightFrontZeroPos = 0.25, leftBackZeroPos = 0.33, rightBackZeroPos = 0.31;
 
     public final VoltageSensor voltageSensor;
 
@@ -137,7 +148,7 @@ public final class MecanumDrive {
             imu = lazyImu.get();
 
             // TODO: reverse encoders if needed
-            //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+//            rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
             this.pose = pose;
         }
@@ -228,14 +239,28 @@ public final class MecanumDrive {
         leftBack = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightRear");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftFrontServo = hardwareMap.get(Servo.class, "leftFrontServo");
+        leftBackServo = hardwareMap.get(Servo.class, "leftRearServo");
+        rightBackServo = hardwareMap.get(Servo.class, "rightRearServo");
+        rightFrontServo = hardwareMap.get(Servo.class, "rightFrontServo");
+
+        setServoPositions();
+
+        swervePIDController = new PIDController(DriveConstants.SWERVE_TURN_PID[0], DriveConstants.SWERVE_TURN_PID[1], DriveConstants.SWERVE_TURN_PID[2]);
+        leftFrontAbsolute = hardwareMap.get(AnalogInput.class, "leftFrontAbsolute");
+        rightFrontAbsolute = hardwareMap.get(AnalogInput.class, "rightFrontAbsolute");
+        leftBackAbsolute = hardwareMap.get(AnalogInput.class, "leftRearAbsolute");
+        rightBackAbsolute = hardwareMap.get(AnalogInput.class, "rightRearAbsolute");
+
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         // TODO: reverse motor directions if needed
-        //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -262,6 +287,35 @@ public final class MecanumDrive {
         leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
         rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
         rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+
+        setServoPositions();
+    }
+
+    public void setServoPositions() {
+        leftFrontServo.setPosition(leftFrontZeroPos);
+        rightFrontServo.setPosition(rightFrontZeroPos);
+        leftBackServo.setPosition(leftBackZeroPos);
+        rightBackServo.setPosition(rightBackZeroPos);
+    }
+
+    public double getServoPower(double target, double servoPos, double zeroPos) {
+        double backwardChange = Math.floorMod((int) (target - servoPos + 180 - zeroPos), 180) - 180;
+        double forwardChange = backwardChange + 180;
+
+        double smallestChange = forwardChange;
+        if (Math.abs(backwardChange) < forwardChange) {
+            smallestChange = backwardChange;
+        }
+
+        // if change is positive, target > pos
+        double shiftedServoPos = 180 - (smallestChange / 2);
+        double shiftedTargetPos = 180 + (smallestChange / 2);
+
+        return swervePIDController.calculate(shiftedServoPos, shiftedTargetPos);
+    }
+
+    public double absoluteReadingToDegrees(double voltage) {
+        return (voltage / 2.2) * 360.0;
     }
 
     public final class FollowTrajectoryAction implements Action {
@@ -300,6 +354,7 @@ public final class MecanumDrive {
                 leftBack.setPower(0);
                 rightBack.setPower(0);
                 rightFront.setPower(0);
+                setServoPositions();
 
                 return false;
             }
@@ -333,6 +388,8 @@ public final class MecanumDrive {
             leftBack.setPower(leftBackPower);
             rightBack.setPower(rightBackPower);
             rightFront.setPower(rightFrontPower);
+
+            setServoPositions();
 
             p.put("x", localizer.getPose().position.x);
             p.put("y", localizer.getPose().position.y);
@@ -392,6 +449,7 @@ public final class MecanumDrive {
                 leftBack.setPower(0);
                 rightBack.setPower(0);
                 rightFront.setPower(0);
+                setServoPositions();
 
                 return false;
             }
@@ -424,6 +482,7 @@ public final class MecanumDrive {
             leftBack.setPower(feedforward.compute(wheelVels.leftBack) / voltage);
             rightBack.setPower(feedforward.compute(wheelVels.rightBack) / voltage);
             rightFront.setPower(feedforward.compute(wheelVels.rightFront) / voltage);
+            setServoPositions();
 
             Canvas c = p.fieldOverlay();
             drawPoseHistory(c);

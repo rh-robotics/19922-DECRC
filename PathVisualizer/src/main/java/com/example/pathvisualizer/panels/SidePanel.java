@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class SidePanel extends JPanel {
     private final Map<String, JCheckBox> checkBoxes = new HashMap<>();
+    private Runnable onAddPoint;
+    private Runnable onRemovePoint;
 
     public SidePanel() {
         setLayout(new GridLayout(0, 1, 5, 5));
@@ -31,6 +34,11 @@ public class SidePanel extends JPanel {
         // interaction toggles
         addCheckbox("robotDraggable", "Robot draggable", true);
         addCheckbox("pointsDraggable", "Points draggable", true);
+
+        addSeparator();
+
+        // point controls
+        addPointButtons();
     }
 
     private void addCheckbox(String key, String label, boolean defaultValue) {
@@ -43,6 +51,34 @@ public class SidePanel extends JPanel {
         JPanel spacer = new JPanel();
         spacer.setPreferredSize(new Dimension(1, 10));
         add(spacer);
+    }
+
+    private void addPointButtons() {
+        JButton addPointButton = new JButton("Add point");
+        JButton removePointButton = new JButton("Remove point");
+
+        addPointButton.addActionListener(e -> {
+            if (onAddPoint != null) {
+                SwingUtilities.invokeLater(onAddPoint);
+            }
+        });
+
+        removePointButton.addActionListener(e -> {
+            if (onRemovePoint != null) {
+                SwingUtilities.invokeLater(onRemovePoint);
+            }
+        });
+
+        add(addPointButton);
+        add(removePointButton);
+    }
+
+    public void setOnAddPoint(Runnable onAddPoint) {
+        this.onAddPoint = onAddPoint;
+    }
+
+    public void setOnRemovePoint(Runnable onRemovePoint) {
+        this.onRemovePoint = onRemovePoint;
     }
 
     public boolean isEnabled(String key) {
