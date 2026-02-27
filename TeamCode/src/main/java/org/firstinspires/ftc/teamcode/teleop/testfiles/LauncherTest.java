@@ -39,7 +39,7 @@ public class LauncherTest extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 300;
+    double launcherTargetVelocity;
 
     // Declare OpMode members.
 
@@ -166,17 +166,80 @@ public class LauncherTest extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.y) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad1.b) { // stop flywheel
+//        if (gamepad1.y) {
+//            launcher.setVelocity(launcherTargetVelocity);
+//        } else if (gamepad1.b) { // stop flywheel
+//            launcher.setVelocity(STOP_SPEED);
+//        } else if (gamepad1.left_bumper) {
+//            leftFeeder.setPower(STOP_SPEED);
+//            rightFeeder.setPower(STOP_SPEED);
+//
+//        } else if (gamepad1.right_bumper){
+//            leftFeeder.setPower(FULL_SPEED);
+//            rightFeeder.setPower(FULL_SPEED);
+//        }
+
+        //farther distance
+        if (gamepad1.right_bumper) {
+            launcherTargetVelocity = 600;
+            launcher.setVelocity(launcherTargetVelocity);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            while (gamepad1.right_bumper) {
+                leftFeeder.setPower(FULL_SPEED);
+                rightFeeder.setPower(FULL_SPEED);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                leftFeeder.setPower(STOP_SPEED);
+                rightFeeder.setPower(STOP_SPEED);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             launcher.setVelocity(STOP_SPEED);
-        } else if (gamepad1.left_bumper) {
+        }
+
+        //shorter distance
+        if (gamepad1.left_bumper) {
+            launcherTargetVelocity = 300;
+            launcher.setVelocity(launcherTargetVelocity);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            while (gamepad1.right_bumper) {
+                leftFeeder.setPower(FULL_SPEED);
+                rightFeeder.setPower(FULL_SPEED);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                leftFeeder.setPower(STOP_SPEED);
+                rightFeeder.setPower(STOP_SPEED);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            launcher.setVelocity(STOP_SPEED);
+        }
+
+        //emergency stop
+        if (gamepad1.y) {
+            launcher.setVelocity(STOP_SPEED);
             leftFeeder.setPower(STOP_SPEED);
             rightFeeder.setPower(STOP_SPEED);
-
-        } else if (gamepad1.right_bumper){
-            leftFeeder.setPower(FULL_SPEED);
-            rightFeeder.setPower(FULL_SPEED);
         }
 
         /*
