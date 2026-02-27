@@ -1,13 +1,20 @@
 package org.firstinspires.ftc.teamcode.teleop.testfiles;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
+@Config
 @TeleOp(name = "Swerve Module Test", group = "testing")
 public class SwerveModuleTest extends OpMode {
     SwerveModule swerveModule;
+    public static String motorName = "leftFront";
+    public static String servoName = "leftFrontServo";
+    public static double zeroPosition = 0;
+    public static double servoDirection = 0;
+    public static double motorVelocity = 0;
 
     @Override
     public void init() {
@@ -15,27 +22,17 @@ public class SwerveModuleTest extends OpMode {
         telemetry.addData("Status", "Initializing");
 
         // Initialize the module
-        swerveModule = new SwerveModule(hardwareMap, "testMotor", "testServo", 42);
+        swerveModule = new SwerveModule(hardwareMap, motorName, servoName, zeroPosition, false);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
+
+        swerveModule.setDirection(0);
     }
 
     @Override
     public void loop() {
-        telemetry.addData("Speed", swerveModule.getVelocity());
-        telemetry.addData("Direction", swerveModule.getDirection());
-        telemetry.addLine();
-
-        telemetry.addData("Left x", gamepad1.left_stick_x);
-        telemetry.addData("Left y", gamepad1.left_stick_y);
-
-        if (gamepad1.triangle) {
-            swerveModule.setDirection(90);
-        } else {
-            swerveModule.setDirection(gamepad1.left_stick_x * 360);
-        }
-
-        swerveModule.setVelocity(gamepad1.left_stick_y);
+        swerveModule.servo.setPosition(servoDirection);
+;       swerveModule.setVelocity(motorVelocity);
     }
 }
