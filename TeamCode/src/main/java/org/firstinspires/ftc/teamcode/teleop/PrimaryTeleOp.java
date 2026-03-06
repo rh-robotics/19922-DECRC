@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.subsystems.apriltag.AprilTag;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.launcher.Launcher;
@@ -21,6 +22,7 @@ public class PrimaryTeleOp extends OpMode {
     SortingDrum sortingDrum;
     Intake intake;
     Launcher launcher;
+    AprilTag aprilTag;
 
     Gamepad previousGamepad1 = new Gamepad(), currentGamepad1 = new Gamepad();
     Gamepad previousGamepad2 = new Gamepad(), currentGamepad2 = new Gamepad();
@@ -39,7 +41,8 @@ public class PrimaryTeleOp extends OpMode {
         drive = new DriveTrain(hardwareMap, true);
         intake = new Intake(hardwareMap, false);
         sortingDrum = new SortingDrum(hardwareMap);
-        launcher = new Launcher(hardwareMap);
+        aprilTag = new AprilTag(hardwareMap, telemetry);
+        launcher = new Launcher(hardwareMap, aprilTag, telemetry);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -69,7 +72,10 @@ public class PrimaryTeleOp extends OpMode {
         telemetry.addLine();
         telemetry.addLine("Shooting Controls:");
         telemetry.addLine("Circle: Launcher On");
-        telemetry.addLine("Cross: Launcher Shoot");
+        //telemetry.addLine("Cross: Launcher Shoot");
+        telemetry.addLine("Cross: Override Automatic Launcher Speed");
+        telemetry.addLine("Dpad Left: Decrease Motor Speed");
+        telemetry.addLine("Dpad Right: Increase Motor Speed");
         telemetry.addLine();
         telemetry.addLine();
         telemetry.addLine("Driver 2 Controls:");

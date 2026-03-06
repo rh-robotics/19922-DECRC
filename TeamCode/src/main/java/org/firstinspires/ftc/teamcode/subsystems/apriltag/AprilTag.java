@@ -31,6 +31,9 @@ public class AprilTag implements SubsystemBase {
     private ExposureControl exposure;
     private GainControl gain;
     private List<AprilTagDetection> detectedTags = new ArrayList<>();
+    private double lastValidDistance = -1;
+    private double validAngle;
+    private long lastSeenTime = 0;
     public AprilTag(HardwareMap map, Telemetry telemetry) {
         hardwareMap = map;
         this.telemetry = telemetry;
@@ -78,7 +81,7 @@ public class AprilTag implements SubsystemBase {
         exposure.setMode(ExposureControl.Mode.Manual);
 
         //14, 5250, 20 from back triangle @ 4pm1
-        exposure.setExposure(18, TimeUnit.MILLISECONDS);
+        exposure.setExposure(22, TimeUnit.MILLISECONDS);
         whiteBalance.setWhiteBalanceTemperature(5250);
         gain.setGain(20);
     }
@@ -146,15 +149,58 @@ public class AprilTag implements SubsystemBase {
     }
 
     public double findDistance() {
-        if (getTagBySpecificID(24).rawPose == null) {
-            return getTagBySpecificID(20).ftcPose.range;
-        } else if (getTagBySpecificID(20).rawPose == null){
-            return getTagBySpecificID(24).ftcPose.range;
+        AprilTagDetection tag20 = getTagBySpecificID(20);
+        AprilTagDetection tag24 = getTagBySpecificID(24);
+
+        AprilTagDetection chosenTag = null;
+
+        if (tag20 != null && tag24 == null) {
+            chosenTag = tag20;
         }
-        if(getTagBySpecificID(20).frameAcquisitionNanoTime > getTagBySpecificID(24).frameAcquisitionNanoTime) {
-            return getTagBySpecificID(20).ftcPose.range;
-        } else {
-            return getTagBySpecificID(24).ftcPose.range;
+        else if (tag24 != null && tag20 == null) {
+            chosenTag = tag24;
         }
+        else if (tag20 != null && tag24 != null) {
+            chosenTag = (tag20.frameAcquisitionNanoTime > tag24.frameAcquisitionNanoTime)
+                    ? tag20
+                    : tag24;
+        }
+
+        if (chosenTag != null) {
+            lastValidDistance = chosenTag.ftcPose.range;
+        }
+
+        return lastValidDistance;
+    }
+
+    public double findAngle(){
+        AprilTagDetection tag20 = getTagBySpecificID(20);
+        AprilTagDetection tag24 = getTagBySpecificID(24);
+        double blueAngle;
+        double redAngle;
+
+        AprilTagDetection chosenTag = null;
+
+        if (tag20 != null && tag24 == null) {
+            chosenTag = tag20;
+        }
+        else if (tag24 != null && tag20 == null) {
+            chosenTag = tag24;
+        }
+        else if (tag20 != null && tag24 != null) {
+            blueAngle = tag20.ftcPose.bearing;
+            redAngle = tag24.ftcPose.bearing;
+            if (Math.abs(blueAngle) > Math.abs(redAngle)) {
+                validAngle = blueAngle;
+            } else {
+                validAngle = redAngle;
+            }
+        }
+
+        if (chosenTag != null) {
+            validAngle = chosenTag.ftcPose.bearing;
+        }
+
+        return validAngle;
     }
 }
