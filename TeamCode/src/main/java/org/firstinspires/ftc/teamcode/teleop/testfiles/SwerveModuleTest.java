@@ -32,7 +32,7 @@ public class SwerveModuleTest extends OpMode {
 
     @Override
     public void loop() {
-        swerveModule.servo.setPosition(servoDirection);
+        swerveModule.setDirection(servoDirection);
 ;       swerveModule.setVelocity(motorVelocity);
     }
 }

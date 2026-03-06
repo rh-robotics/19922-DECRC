@@ -11,17 +11,18 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 
-//@Config
+@Config
 @TeleOp(name = "Lamprey Absolutes Test")
 public class AbsolutesTest extends OpMode {
     AnalogInput absoluteEncoder;
+    public static String absoluteName = "leftFrontAbsolute";
 
     @Override
     public void init() {
         // Tell the driver the Op is initializing
         telemetry.addData("Status", "Initializing");
 
-        absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
+        absoluteEncoder = hardwareMap.get(AnalogInput.class, absoluteName);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");

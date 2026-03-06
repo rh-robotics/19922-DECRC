@@ -8,21 +8,26 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 @TeleOp(name = "PID Swerve Module Test", group = "PIDs")
 public class PIDSwerveModuleTest extends OpMode {
-    public static String servoName = "servo";
+    public static String servoName = "rightFrontServo";
+    public static String absoluteName = "rightFrontAbsolute";
     public static double Kp = 0.004;
     public static double Ki = 0.05;
     public static double Kd = 0.0001;
 
     public static double target = 100;
+    public static boolean changeConstantly = false;
+    public static double changeConstant = 1;
 
     private PIDController controller;
     private CRServo servo;
     AnalogInput absoluteEncoder;
     FtcDashboard dashboard;
+    ElapsedTime timer;
 
     @Override
     public void init() {
@@ -31,7 +36,9 @@ public class PIDSwerveModuleTest extends OpMode {
         servo = hardwareMap.get(CRServo.class, servoName);
         controller = new PIDController(Kp, Ki, Kd);
 
-        absoluteEncoder = hardwareMap.get(AnalogInput.class, "absoluteEncoder");
+        absoluteEncoder = hardwareMap.get(AnalogInput.class, absoluteName);
+
+        timer = new ElapsedTime();
     }
 
     @Override
@@ -61,11 +68,18 @@ public class PIDSwerveModuleTest extends OpMode {
 
         telemetry.addData("Reference", target);
         telemetry.addData("Current servo position", servoPos);
+        telemetry.addData("Difference", smallestChange);
 
         telemetry.addLine();
         telemetry.addData("Backward Change", backwardChange);
         telemetry.addData("Forward Change", forwardChange);
 
-        telemetry.update();
+        telemetry.addData("Is Reversed", (Math.abs((((absoluteEncoder.getVoltage() / 2.2) * 360.0) - ZERO_POSITION) % 360)  - (target % 360)) < 90);
+
+        if (changeConstantly) {
+            target += (timer.milliseconds() / 100) * changeConstant;
+            target %= 360;
+            timer.reset();
+        }
     }
 }

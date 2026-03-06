@@ -6,17 +6,16 @@ import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
-//@Config
-//@TeleOp(name = "Swerve Turn Test", group = "testing")
+@Config
+@TeleOp(name = "Swerve Turn Test", group = "testing")
 public class SwerveTurnTest extends LinearOpMode {
     SwerveModule swerveModule;
-    public static boolean testing = false;
     public static double direction = 0;
-    public static double position = 0;
+    public static double velocity = 0;
 
     public static String motorName = "testMotor";
     public static String servoName = "testServo";
-    public static double zeroPosition = 195;
+    public static double zeroPosition = 256;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -24,15 +23,11 @@ public class SwerveTurnTest extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            if (testing) {
-                swerveModule.setDirection(direction);
-            } else {
-                swerveModule.servo.setPosition(position);
-            }
+            swerveModule.setDirection(direction);
+            swerveModule.setVelocity(velocity);
 
             telemetry.addData("Direction", swerveModule.getDirection());
-//            telemetry.addData("Reversed", swerveModule.isReversed());
-            telemetry.addData("Position", swerveModule.servo.getPosition());
+            telemetry.addData("Velocity", swerveModule.getVelocity());
         }
     }
 }

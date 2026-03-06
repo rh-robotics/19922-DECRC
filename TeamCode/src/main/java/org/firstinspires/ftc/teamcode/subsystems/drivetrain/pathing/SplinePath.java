@@ -65,45 +65,54 @@ public class SplinePath {
     public RobotEntity robot;
 
     public SplinePath(Points points, HardwareMap hardwareMap) {
-        this.points = points;
+        // bc this is also used to just keep track of pathing in teleop cuz the code was alr written
+        if (points.getLength() > 1) {
+            this.points = points;
 
-        verifyEqualListLengths(points.getXList(), points.getYList(), points.getHList());
-        tList = getSequentialListOfLength(points.getLength());
+            verifyEqualListLengths(points.getXList(), points.getYList(), points.getHList());
+            tList = getSequentialListOfLength(points.getLength());
 
-        SplineInterpolator splineInterpolator = new SplineInterpolator();
-        xSpline = splineInterpolator.interpolate(tList, points.getXList());
-        ySpline = splineInterpolator.interpolate(tList, points.getYList());
-        headingSpline = splineInterpolator.interpolate(tList, points.getHList());
+            SplineInterpolator splineInterpolator = new SplineInterpolator();
+            xSpline = splineInterpolator.interpolate(tList, points.getXList());
+            ySpline = splineInterpolator.interpolate(tList, points.getYList());
+            headingSpline = splineInterpolator.interpolate(tList, points.getHList());
 
-        segmentLength = DriveConstants.DEFAULT_SEGMENT_LENGTH;
-        nextPointsRange = DriveConstants.DEFAULT_NEXT_POINTS_RANGE;
-        catchRange = DriveConstants.DEFAULT_CATCH_RANGE;
+            segmentLength = DriveConstants.DEFAULT_SEGMENT_LENGTH;
+            nextPointsRange = DriveConstants.DEFAULT_NEXT_POINTS_RANGE;
+            catchRange = DriveConstants.DEFAULT_CATCH_RANGE;
 
-        findAimablePoints();
+            findAimablePoints();
 
-        this.robot = new RobotEntity(aimablePoints[0][0], aimablePoints[0][1], aimablePoints[0][2], catchRange, hardwareMap);
-        updateRobot();
+            this.robot = new RobotEntity(aimablePoints[0][0], aimablePoints[0][1], aimablePoints[0][2], catchRange, hardwareMap);
+            updateRobot();
+        } else {
+            this.robot = new RobotEntity(0, 0, 0, 0, hardwareMap);
+        }
     }
 
     public SplinePath(Points points, double segmentLength, int nextPointsRange, double catchRange, HardwareMap hardwareMap) {
-        this.points = points;
+        // bc this is also used to just keep track of pathing in teleop cuz the code was alr written
+        if (points.getLength() > 1) {
+            this.points = points;
 
-        verifyEqualListLengths(points.getXList(), points.getYList(), points.getHList());
-        tList = getSequentialListOfLength(points.getLength());
+            verifyEqualListLengths(points.getXList(), points.getYList(), points.getHList());
+            tList = getSequentialListOfLength(points.getLength());
 
-        SplineInterpolator splineInterpolator = new SplineInterpolator();
-        xSpline = splineInterpolator.interpolate(tList, points.getXList());
-        ySpline = splineInterpolator.interpolate(tList, points.getYList());
-        headingSpline = splineInterpolator.interpolate(tList, points.getHList());
+            SplineInterpolator splineInterpolator = new SplineInterpolator();
+            xSpline = splineInterpolator.interpolate(tList, points.getXList());
+            ySpline = splineInterpolator.interpolate(tList, points.getYList());
+            headingSpline = splineInterpolator.interpolate(tList, points.getHList());
 
-        this.segmentLength = segmentLength;
-        this.nextPointsRange = nextPointsRange;
-        this.catchRange = catchRange;
+            this.segmentLength = segmentLength;
+            this.nextPointsRange = nextPointsRange;
+            this.catchRange = catchRange;
 
-        findAimablePoints();
-
-        this.robot = new RobotEntity(aimablePoints[0][0], aimablePoints[0][1], aimablePoints[0][2], catchRange, hardwareMap);
-        updateRobot();
+            findAimablePoints();
+            this.robot = new RobotEntity(aimablePoints[0][0], aimablePoints[0][1], aimablePoints[0][2], catchRange, hardwareMap);
+            updateRobot();
+        } else {
+            this.robot = new RobotEntity(0, 0, 0, 0, hardwareMap);
+        }
     }
 
     // returns if finished
@@ -124,6 +133,10 @@ public class SplinePath {
         }
 
         return robot.getActivePointIndex() >= aimablePoints.length - 1; // if finished
+    }
+
+    public void updatePoseEstimate() {
+        robot.updatePoseEstimate();
     }
 
     public Pose2d getRobotPosition() {

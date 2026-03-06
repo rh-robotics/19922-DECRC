@@ -12,9 +12,8 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.Localizer;
-import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.ThreeDeadWheelLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.roadrunner.roadrunner.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.subsystems.roadrunner.Localizer;
+import org.firstinspires.ftc.teamcode.subsystems.roadrunner.ThreeDeadWheelLocalizer;
 
 import java.util.LinkedList;
 
@@ -24,26 +23,7 @@ import java.util.LinkedList;
 public class RobotEntity {
     private int activePointIndex = 0; // furthest point that's been seen
     double catchRange;
-
-    public static class Params {
-        // IMU orientation
-        // TODO: fill in these values based on
-        //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
-        public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-
-        // drive model parameters
-        public double inPerTick = 1;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
-    }
-    public static Params PARAMS = new Params();
-    public final MecanumKinematics kinematics = new MecanumKinematics(
-            PARAMS.inPerTick * PARAMS.trackWidthTicks, PARAMS.inPerTick / PARAMS.lateralInPerTick);
-
-
+    private final double IN_PER_TICK = 96.0/47814.5;;
     public final Localizer localizer;
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
@@ -56,11 +36,9 @@ public class RobotEntity {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick, new Pose2d(x, y, heading));
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, IN_PER_TICK, new Pose2d(x, y, heading));
 
         this.catchRange = catchRange;
-
-        FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
 
     public boolean inRange(double[] point, double range) {
@@ -86,14 +64,14 @@ public class RobotEntity {
     }
 
     public void updatePoseEstimate() {
-        PoseVelocity2d vel = localizer.update();
+        localizer.update();
         poseHistory.add(localizer.getPose());
 
         while (poseHistory.size() > 100) {
             poseHistory.removeFirst();
         }
 
-        estimatedPoseWriter.write(new PoseMessage(localizer.getPose()));
+        estimatedPoseWriter.write(new org.firstinspires.ftc.teamcode.messages.PoseMessage(localizer.getPose()));
     }
 
     public Pose2d getPose() {

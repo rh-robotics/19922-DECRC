@@ -16,12 +16,14 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.RobotEntity;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.SplinePath;
 
 public class DriveTrain implements SubsystemBase {
-    private SwerveModule[] modules;
+    public SwerveModule[] modules;
     private DcMotorEx leftFront, rightFront, rightRear, leftRear;
     private boolean inPathTolerance = true;
     private IMU imu;
     private double INIT_HEADING;
     public SplinePath activePath;
+    private double direction = 0;
+    private boolean turning = false;
 
     // CONSTRUCTORS
     public DriveTrain(HardwareMap hardwareMap, boolean isSwerve, boolean isAuton, Points pathingPoints) {
@@ -32,9 +34,8 @@ public class DriveTrain implements SubsystemBase {
             configureStrafe(hardwareMap);
         }
 
-        if (isAuton) {
-            activePath = new SplinePath(pathingPoints, hardwareMap);
-        }
+        // also initialized in teleop for the sake of odo localization
+        activePath = new SplinePath(pathingPoints, hardwareMap);
     }
 
     // defaults to not auton
@@ -45,6 +46,9 @@ public class DriveTrain implements SubsystemBase {
         } else {
             configureStrafe(hardwareMap);
         }
+
+        // also initialized in teleop for the sake of odo localization
+        activePath = new SplinePath(new Points(new double[0], new double[0], new double[0]), hardwareMap);
     }
 
     // CONSTRUCTOR FUNCTIONS
@@ -55,7 +59,7 @@ public class DriveTrain implements SubsystemBase {
                 new SwerveModule(hardwareMap, "leftRear", "leftRearServo", DriveConstants.LEFTREAR_ZERO, DriveConstants.LEFTREAR_ISREVERSED),
                 new SwerveModule(hardwareMap, "rightRear", "rightRearServo", DriveConstants.RIGHTREAR_ZERO, DriveConstants.RIGHTREAR_ISREVERSED)};
 
-        imu = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(IMU.class, "revIMU");
 
         RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
@@ -78,6 +82,8 @@ public class DriveTrain implements SubsystemBase {
                 setModules(0);
             }
         }
+
+        activePath.updatePoseEstimate();
     }
 
     // SETTERS
@@ -125,13 +131,19 @@ public class DriveTrain implements SubsystemBase {
         activePath.changePath(points);
     }
 
+    public Pose2d getPose() {
+        return activePath.robot.getPose();
+    }
+
     public void setModulesToTurn(double speed) {
+        turning = true;
+
         speed *= DriveConstants.TURN_MAX_SPEED;
 
-        modules[0].setDirection(-45);
-        modules[1].setDirection(45);
-        modules[2].setDirection(45);
-        modules[3].setDirection(-45);
+        modules[0].setDirection(45);
+        modules[1].setDirection(-45);
+        modules[2].setDirection(-45);
+        modules[3].setDirection(45);
 
         modules[0].setVelocity(speed);
         modules[1].setVelocity(-speed);
@@ -140,6 +152,8 @@ public class DriveTrain implements SubsystemBase {
     }
 
     public void setModules(double speed, double[] directions) {
+        turning = true; // just a non-standard thing
+
         modules[0].setDirection(directions[0]);
         modules[1].setDirection(directions[1]);
         modules[2].setDirection(directions[2]);
@@ -152,6 +166,9 @@ public class DriveTrain implements SubsystemBase {
     }
 
     public void setModules(double speed, double direction) {
+        turning = false;
+        this.direction = direction;
+
         modules[0].setDirection(direction);
         modules[1].setDirection(direction);
         modules[2].setDirection(direction);
@@ -164,6 +181,11 @@ public class DriveTrain implements SubsystemBase {
     }
 
     public void setModules(double speed) {
+        modules[0].setDirection(direction);
+        modules[1].setDirection(direction);
+        modules[2].setDirection(direction);
+        modules[3].setDirection(direction);
+
         modules[0].setVelocity(speed);
         modules[1].setVelocity(speed);
         modules[2].setVelocity(speed);
@@ -204,6 +226,8 @@ public class DriveTrain implements SubsystemBase {
         rf -= getRelativeHeading(AngleUnit.DEGREES);
         lr -= getRelativeHeading(AngleUnit.DEGREES);
         rr -= getRelativeHeading(AngleUnit.DEGREES);
+
+        turning = true;
 
         modules[0].setDirection(lf);
         modules[1].setDirection(rf);
