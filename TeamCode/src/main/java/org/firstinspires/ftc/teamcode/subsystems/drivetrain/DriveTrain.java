@@ -6,16 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.Points;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.RobotEntity;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.pathing.SplinePath;
 
-public class DriveTrain implements SubsystemBase {
+public class DriveTrain implements Subsystem {
     private SwerveModule[] modules;
     private DcMotorEx leftFront, rightFront, rightRear, leftRear;
     private boolean inPathTolerance = true;

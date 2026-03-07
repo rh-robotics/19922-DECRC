@@ -10,6 +10,16 @@ public class DriveConstants {
 
     public final static double PATH_FOLLOWING_TOLERANCE = 5; // inches
 
+    public static final String LEFTFRONT_NAME = "leftFront";
+    public static final String RIGHTFRONT_NAME = "rightFront";
+    public static final String LEFTREAR_NAME = "leftRear";
+    public static final String RIGHTREAR_NAME = "rightRear";
+
+    public static final String LEFTFRONT_SERVO_NAME = "leftFrontServo";
+    public static final String RIGHTFRONT_SERVO_NAME = "rightFrontServo";
+    public static final String LEFTREAR_SERVO_NAME = "leftRearServo";
+    public static final String RIGHTREAR_SERVO_NAME = "rightRearServo";
+
     public final static double LEFTFRONT_ZERO = 5;
     public final static double RIGHTFRONT_ZERO = 10;
     public final static double LEFTREAR_ZERO = 5;

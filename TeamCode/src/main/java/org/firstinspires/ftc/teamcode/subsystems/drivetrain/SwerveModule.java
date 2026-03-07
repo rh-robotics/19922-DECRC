@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class SwerveModule {
+    private final String name;
     private DcMotorEx motor;
     public Servo servo;
     public CRServo crservo; // use one, this if absolutes are in use
@@ -23,6 +24,7 @@ public class SwerveModule {
 
     // CONSTRUCTORS
     public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName, double zeroPosition, boolean isReversed) {
+        name = motorName;
         motor = hardwareMap.get(DcMotorEx.class, motorName);
 
         if (isReversed) {
@@ -52,6 +54,7 @@ public class SwerveModule {
 
     // initialize with default values for zeroPosition and isReversed
     public SwerveModule(HardwareMap hardwareMap, String motorName, String servoName) {
+        name = motorName;
         motor = hardwareMap.get(DcMotorEx.class, motorName);
 
         motor.setDirection(DcMotorSimple.Direction.FORWARD); // default to forward
@@ -150,6 +153,9 @@ public class SwerveModule {
 
     // GETTERS
 
+    public String getName() {
+        return name;
+    }
     public double getVelocity() {
         return motor.getPower();
     }

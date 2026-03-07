@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 
-public class Intake implements SubsystemBase {
+public class Intake implements Subsystem {
     DcMotorEx intakeMotor;
 
     public Intake(HardwareMap hardwareMap, boolean isReversed) {

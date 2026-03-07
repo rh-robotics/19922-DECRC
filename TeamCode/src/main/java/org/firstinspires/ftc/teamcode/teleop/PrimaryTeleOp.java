@@ -3,12 +3,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.launcher.Launcher;
@@ -25,8 +22,16 @@ public class PrimaryTeleOp extends OpMode {
     Gamepad previousGamepad1 = new Gamepad(), currentGamepad1 = new Gamepad();
     Gamepad previousGamepad2 = new Gamepad(), currentGamepad2 = new Gamepad();
 
+    //John Stuff
+    Robot robot;
+
     @Override
     public void init() {
+        // John ================================
+        robot = new Robot(this, false);
+        robot.initGamepads();
+
+        //======================================
         // Tell the driver the Op is initializing
         telemetry.addData("Status", "Initializing");
 
@@ -43,21 +48,6 @@ public class PrimaryTeleOp extends OpMode {
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
-    }
-
-    @Override
-    public void loop() {
-        previousGamepad1.copy(currentGamepad1);
-        currentGamepad1.copy(gamepad1);
-
-        previousGamepad2.copy(currentGamepad2);
-        currentGamepad2.copy(gamepad2);
-
-        drive.teleopUpdate(currentGamepad1, previousGamepad1, currentGamepad2, previousGamepad2);
-        intake.teleopUpdate(currentGamepad1, previousGamepad1, currentGamepad2, previousGamepad2);
-        sortingDrum.teleopUpdate(currentGamepad1, previousGamepad1, currentGamepad2, previousGamepad2);
-        launcher.teleopUpdate(currentGamepad1, previousGamepad1, currentGamepad2, previousGamepad2);
-
         telemetry.addLine("Driver 1 Controls:");
         telemetry.addLine("***********************");
         telemetry.addLine();
@@ -80,5 +70,10 @@ public class PrimaryTeleOp extends OpMode {
         telemetry.addLine("Square: Increase Index by 1");
         telemetry.addLine("Triangle: Decrease Index by 1");
         telemetry.addLine();
+    }
+
+    @Override
+    public void loop() {
+        robot.updateSubsystems();
     }
 }

@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.subsystems.launcher;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.subsystems.SubsystemBase;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 
-public class Launcher implements SubsystemBase {
+public class Launcher implements Subsystem {
     public Launcher(HardwareMap hardwareMap) {
 
     }
