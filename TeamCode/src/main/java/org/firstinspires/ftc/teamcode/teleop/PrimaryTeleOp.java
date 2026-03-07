@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DriveTrain;
 import org.firstinspires.ftc.teamcode.subsystems.intake.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.launcher.AprilTag;
 import org.firstinspires.ftc.teamcode.subsystems.launcher.Launcher;
 import org.firstinspires.ftc.teamcode.subsystems.sortingdrum.SortingDrum;
 
@@ -43,7 +44,9 @@ public class PrimaryTeleOp extends OpMode {
         drive = new DriveTrain(hardwareMap, true);
         intake = new Intake(hardwareMap, false);
         sortingDrum = new SortingDrum(hardwareMap);
-        launcher = new Launcher(hardwareMap);
+
+        // last bc waits for webcam to initialize
+        launcher = new Launcher(hardwareMap, new AprilTag(hardwareMap, telemetry), telemetry);
 
         // Tell the driver the robot is ready
         telemetry.addData("Status", "Initialized");
@@ -74,6 +77,9 @@ public class PrimaryTeleOp extends OpMode {
         telemetry.addLine("Shooting Controls:");
         telemetry.addLine("Circle: Launcher On");
         telemetry.addLine("Cross: Launcher Shoot");
+        telemetry.addLine("Press Down Left Toggle: Override Automatic Launcher Speed");
+        telemetry.addLine("Dpad Left/Right: Decrease/Increase Motor Speed");
+        telemetry.addLine("Dpad Down/Up: Decrease/Increase Top Wheel Position");
         telemetry.addLine();
         telemetry.addLine();
         telemetry.addLine("Driver 2 Controls:");

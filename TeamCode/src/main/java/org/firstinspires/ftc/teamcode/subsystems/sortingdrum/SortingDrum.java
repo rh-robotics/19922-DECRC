@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.subsystems.sortingdrum;
 
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -53,6 +55,13 @@ public class SortingDrum {
     private Artifacts[] mosaicPattern;
     private int mosaicIndex = 0;
 
+    DigitalChannel clockwiseMagnet, counterClockwiseMagnet;
+    DcMotorEx drumMotor;
+    public static int indexesRemaining = 0;
+    private boolean clockwiseMagnetSeen = false, counterclockwiseMagnetSeen = false;
+
+    public static double power = 0.5;
+
     // basically indicates the index facing the launch in this diagram
     // but this diagram of positions is also used for indexing a secondary overlay of staticPositions
 
@@ -78,6 +87,11 @@ public class SortingDrum {
         intakeSensor = hardwareMap.get(ColorSensor.class, "intakeColorSensor");
         launchSensor = hardwareMap.get(ColorSensor.class, "launchColorSensor");
 
+        clockwiseMagnet = hardwareMap.get(DigitalChannel.class, "clockwiseMagnet");
+        counterClockwiseMagnet = hardwareMap.get(DigitalChannel.class, "counterclockwiseMagnet");
+
+        drumMotor = hardwareMap.get(DcMotorEx.class, "drumMotor");
+
         this.scoringMode = scoringMode;
         this.indexingMode = indexingMode;
         this.state = startState;
@@ -90,6 +104,11 @@ public class SortingDrum {
 
         intakeSensor = hardwareMap.get(ColorSensor.class, "intakeColorSensor");
         launchSensor = hardwareMap.get(ColorSensor.class, "launchColorSensor");
+
+        clockwiseMagnet = hardwareMap.get(DigitalChannel.class, "clockwiseMagnet");
+        counterClockwiseMagnet = hardwareMap.get(DigitalChannel.class, "counterclockwiseMagnet");
+
+        drumMotor = hardwareMap.get(DcMotorEx.class, "drumMotor");
 
         this.scoringMode = ScoringModes.NORMAL;
         this.indexingMode = IndexingModes.DEFAULT;
@@ -149,9 +168,36 @@ public class SortingDrum {
 
 
     private void updatePosition() {
+        if (indexesRemaining != 0) {
+            if (indexesRemaining > 0) {
+                drumMotor.setPower(power);
 
+                // clockwise
+                if (!clockwiseMagnetSeen && magnetInRange(0)) { // if you got out of range and just got back in
+                    indexesRemaining--;
+                }
+            } else {
+                drumMotor.setPower(-power);
+
+                // counter clockwise
+                if (!counterclockwiseMagnetSeen && magnetInRange(1)) { // if you got out of range and just got back in
+                    indexesRemaining++;
+                }
+            }
+        } else {
+            drumMotor.setPower(0);
+        }
+
+        clockwiseMagnetSeen = magnetInRange(0);
+        counterclockwiseMagnetSeen = magnetInRange(1);
     }
 
+    public boolean magnetInRange(int index) {
+        if (index == 0) {
+            return !clockwiseMagnet.getState();
+        }
+        return !counterClockwiseMagnet.getState();
+    }
 
     private boolean launchReady() {
         return launch;

@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.teleop.testfiles;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BNO055IMUNew;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -47,14 +50,16 @@ public class SimpleSwerve extends OpMode {
         drive = new DriveTrain(hardwareMap, true);
         timer = new ElapsedTime();
 
-        imu = hardwareMap.get(IMU.class, "revIMU");
+        imu = hardwareMap.get(IMU.class, "imu");
 
-        RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                        RevHubOrientationOnRobot.UsbFacingDirection.UP
+                )
         );
 
-        imu.initialize(new IMU.Parameters(RevOrientation));
+        imu.initialize(parameters);
 
         INIT_HEADING = getHeading();
 
@@ -68,27 +73,27 @@ public class SimpleSwerve extends OpMode {
         gamepadDirection = Math.atan2(gamepad1.left_stick_y, gamepad1.left_stick_x) * 180 / Math.PI + 90;
         gamepadDirection = (gamepadDirection + getHeading() - INIT_HEADING);
 
-//        if (!paused) {
-//            if (usingGamepad) {
-//                if (gamepad1.left_trigger >= 0.05 || gamepad1.right_trigger >= 0.05) { // turn
-//                    drive.setModulesToTurn((gamepad1.right_trigger - gamepad1.left_trigger)*MAX_SPEED);
-//                } else if (Math.abs(gamepad1.right_stick_x) > 0.05) {
-//                    drive.setModulesToTurn(gamepad1.right_stick_x * MAX_SPEED) ;
-//                } else {
-//                    if (Math.abs(gamepadSpeed) > 0.05) { // drive
-//                        drive.setModules(gamepadSpeed, gamepadDirection);
-//                    } else {
-//                        drive.setModules(0);
-//                    }
-//                }
-//            } else if (turn) {
-//                drive.setModulesToTurn(speed);
-//            } else {
-//                drive.setModules(speed, direction);
-//            }
-//        }
+        if (!paused) {
+            if (usingGamepad) {
+                if (gamepad1.left_trigger >= 0.05 || gamepad1.right_trigger >= 0.05) { // turn
+                    drive.setModulesToTurn((gamepad1.right_trigger - gamepad1.left_trigger)*MAX_SPEED);
+                } else if (Math.abs(gamepad1.right_stick_x) > 0.05) {
+                    drive.setModulesToTurn(gamepad1.right_stick_x * MAX_SPEED) ;
+                } else {
+                    if (Math.abs(gamepadSpeed) > 0.05) { // drive
+                        drive.setModules(gamepadSpeed, gamepadDirection);
+                    } else {
+                        drive.setModules(0);
+                    }
+                }
+            } else if (turn) {
+                drive.setModulesToTurn(speed);
+            } else {
+                drive.setModules(speed, direction);
+            }
+        }
 
-        drive.setModules(speed, direction);
+//        drive.setModules(speed, direction);
 
         telemetry.addData("Speed", gamepadSpeed);
         telemetry.addData("Direction", gamepadDirection);
